@@ -2,7 +2,7 @@ package icu.windea.sqlfox.component
 
 import com.alibaba.druid.DbType
 import icu.windea.sqlfox.getBackupFilePath
-import icu.windea.sqlfox.handler.getSqlHandler
+import icu.windea.sqlfox.getSqlHandler
 import icu.windea.sqlfox.toFile
 import org.springframework.shell.standard.*
 import java.nio.charset.Charset
@@ -27,7 +27,7 @@ class FormatComponent {
         val handler = getSqlHandler(sql, dbType)
         return when (option) {
             "l", "lc", "lower-case", "lowerCase" -> handler.formatToLowerCase()
-            "u", "uc", "upper-case", "upperCase" -> handler.formatToLowerCase()
+            "u", "uc", "upper-case", "upperCase" -> handler.formatToUpperCase()
             else -> throw UnsupportedOperationException("Unsupported option for command 'format'.")
         }
     }

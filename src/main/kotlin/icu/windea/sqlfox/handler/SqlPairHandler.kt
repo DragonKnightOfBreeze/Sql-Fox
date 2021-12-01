@@ -2,6 +2,7 @@ package icu.windea.sqlfox.handler
 
 import com.alibaba.druid.DbType
 import icu.windea.sqlfox.defaultDbType
+import icu.windea.sqlfox.getSqlHandler
 
 class SqlPairHandler(
     val sourceSql: String,

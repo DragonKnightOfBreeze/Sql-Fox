@@ -1,9 +1,9 @@
 @file:JvmName("SqlHandlerExtensions")
 
-package icu.windea.sqlfox.handler
+package icu.windea.sqlfox
 
 import com.alibaba.druid.DbType
-import icu.windea.sqlfox.defaultDbType
+import icu.windea.sqlfox.handler.SqlHandler
 import java.util.concurrent.ConcurrentHashMap
 
 private val cache: MutableMap<String, SqlHandler> = ConcurrentHashMap(object : LinkedHashMap<String, SqlHandler>() {
