@@ -12,3 +12,5 @@ fun main(args: Array<String>) {
 }
 
 val defaultDbType = DbType.mysql
+
+const val doneMessage = "Done."

@@ -5,10 +5,10 @@ import com.alibaba.druid.sql.SQLUtils
 import com.alibaba.druid.sql.ast.SQLStatement
 import com.alibaba.druid.sql.ast.statement.*
 import icu.windea.sqlfox.defaultDbType
+import icu.windea.sqlfox.isLineBreak
 
 class SqlHandler(
-    val sql: String,
-    val dbType: DbType = defaultDbType
+    val sql: String, val dbType: DbType = defaultDbType
 ) {
     val statements: List<SQLStatement> by lazy { SQLUtils.parseStatements(sql, dbType) }
 
@@ -31,17 +31,50 @@ class SqlHandler(
 
     private inline fun doSwitchCase(transform: (Char) -> Char): String {
         return buildString {
-            var isComment = false
-            var isStringLiteral = false
-            val length = sql.length
+            var inStringLiteral = false
+            var inBlockComment = false
+            var inComment = false
+            var pc: Char?
             for ((i, c) in sql.withIndex()) {
-                when {
-                    !isComment && (i == 0 || sql[i - 1].let { it == '\r' || it == '\n' }) && (c == '#' || (c == '-' && i != length - 1 && sql[i + 1] == '-')) -> isComment = true
-                    isComment && (c == '\r' || c == '\n') -> isComment = false
-                    !isComment && c == '\'' -> isStringLiteral = !isStringLiteral
+                pc = sql.getOrNull(i - 1)
+                if (!inBlockComment) {
+                    if (!inComment) {
+                        if(!inStringLiteral){
+                            if (c == '\'') {
+                                inStringLiteral = true
+                            }else{
+                                if (c == '#' || (c == '-' && pc == '-')) {
+                                    inComment = true
+                                } else if (c == '*' && pc == '/') {
+                                    inBlockComment = true
+                                }
+                            }
+                        }else{
+                            if (c == '\'' && pc != '\\') {
+                                inStringLiteral = false
+                            }
+                        }
+                    } else {
+                        if (c.isLineBreak()) {
+                            inComment = false
+                        }
+                    }
+                }else {
+                    if (c == '/' && pc == '*') {
+                        inBlockComment = false
+                    }
                 }
+
+                //    if (c == '\'' && pc != '\\') {
+                //        inStringLiteral = !inStringLiteral
+                //    } else if (c == '*' && pc == '/') {
+                //        inBlockComment = true
+                //    } else {
+                //
+                //    }
+                //}
                 when {
-                    isComment || isStringLiteral -> append(c)
+                    inStringLiteral || inBlockComment || inComment -> append(c)
                     else -> append(transform(c))
                 }
             }
